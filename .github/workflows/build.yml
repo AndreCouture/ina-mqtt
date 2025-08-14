@@ -46,12 +46,14 @@ jobs:
         run: |
           mkdir -p build/${{ matrix.arch }}
           CC=${{ matrix.arch == 'arm-linux-gnueabihf' && 'arm-linux-gnueabihf-gcc' || 'aarch64-linux-gnu-gcc' }}
+          INSTALL_DIR=paho-install/${{ matrix.arch }}
           BIN=ina_mqtt-${{ matrix.arch }}
+          
           $CC -O2 -Wall -o build/${{ matrix.arch }}/$BIN ina219_mqtt.c \
-            -Ibuild-paho/${{ matrix.arch }}/include \
-            -Lbuild-paho/${{ matrix.arch }}/lib \
+            -I$INSTALL_DIR/include \
+            -L$INSTALL_DIR/lib \
             -lpaho-mqtt3c
-
+      
       - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
