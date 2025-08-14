@@ -404,24 +404,15 @@ int main(int argc, char *argv[]) {
     MQTTClient_connectOptions opts = MQTTClient_connectOptions_initializer;
     MQTTClient_setCallbacks(client, NULL, NULL, messageArrived, NULL);
     if (MQTTClient_connect(client, &opts) != MQTTCLIENT_SUCCESS) {
-        fprintf(stderr, "MQTT connection failed\n");
-        return 1;
+        fprintf(stderr, "MQTT connection failed. Defaulting to interactive mode!\n");
+        cfg.interactive = 1;
+    } else {
+        subscribe_topic(cfg.topic_get);
+        subscribe_topic(TOPIC_INA_STATE);
     }
-
-    subscribe_topic(cfg.topic_get);
-    subscribe_topic(TOPIC_INA_STATE);
-//    printf("Listening for MQTT topic '%s'...\n", cfg.topic_get);
 
     while (1) {
 
-//      if (!ina_connected()) {
-//          fprintf(stderr, "INA sensor disconnected or not responding!\n");
-//          // Optionally: reconnect or halt processing
-//          sleep(1); // or break; or try I2C rescan
-//          fd = wiringPiI2CSetup(I2C_ADDR_DEFAULT);
-//          continue;
-//      }
-        
 //      char *topic = NULL;
 //      int msgid;
 //      MQTTClient_message *msg = NULL;
