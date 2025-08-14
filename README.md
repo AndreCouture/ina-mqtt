@@ -19,7 +19,7 @@ A compact C-based tool that reads sensor data from an INA219 current/voltage sen
 Install these before compiling:
 
 ```bash
-sudo apt install libpaho-mqtt-dev wiringpi build-essential
+sudo apt install libi2c-dev i2c-tools build-essential libpaho-mqtt-dev
 ```
 
 Or manually build [paho.mqtt.c](https://github.com/eclipse/paho.mqtt.c) if needed.
@@ -56,7 +56,7 @@ In this setup, the shunt voltage and current will be close to zero, but **bus vo
 
 ## ⚙️ Configuration
 
-Create a config file named `ina219.conf`:
+Create a config file named `ina.conf`:
 
 ```ini
 shunt_ohms=0.1
@@ -72,14 +72,14 @@ mqtt_topic_reply=ina219/status
 ## 🚀 Compilation
 
 ```bash
-gcc -o ina219_mqtt ina219_mqtt.c -lwiringPi -lpaho-mqtt3c -lm
+gcc -o ina219_mqtt ina219_mqtt.c -lpaho-mqtt3c -lm
 ```
 
 ---
 
 ## ✅ Usage
 
-### Run with config file (default: `ina219.conf`)
+### Run with config file (default: `ina.conf`)
 ```bash
 ./ina219_mqtt
 ```
