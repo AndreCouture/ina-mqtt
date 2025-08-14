@@ -26,35 +26,53 @@ jobs:
           sudo apt-get install -y \
             gcc-arm-linux-gnueabihf \
             gcc-aarch64-linux-gnu \
-            libpaho-mqtt1.3 \
-            libpaho-mqtt-dev \
+            cmake \
             libi2c-dev \
             build-essential
 
       - name: Build Paho MQTT C for ${{ matrix.arch }}
         run: |
           git clone https://github.com/eclipse/paho.mqtt.c.git
+          mkdir -p paho-build
           cd paho.mqtt.c
+
+          # Choose the correct compiler
+          if [ "${{ matrix.arch }}" = "armhf" ]; then
+            export CC=arm-linux-gnueabihf-gcc
+            export INSTALL_DIR=$GITHUB_WORKSPACE/paho-install/armhf
+          else
+            export CC=aarch64-linux-gnu-gcc
+            export INSTALL_DIR=$GITHUB_WORKSPACE/paho-install/arm64
+          fi
+
           cmake -Bbuild -H. \
             -DPAHO_WITH_SSL=OFF \
             -DPAHO_BUILD_STATIC=TRUE \
-            -DCMAKE_C_COMPILER=${{ matrix.arch == 'armhf' && 'arm-linux-gnueabihf-gcc' || 'aarch64-linux-gnu-gcc' }} \
-            -DCMAKE_INSTALL_PREFIX=../paho-install/${{ matrix.arch }}
+            -DPAHO_BUILD_DOCUMENTATION=FALSE \
+            -DCMAKE_C_COMPILER=$CC \
+            -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR
+
           cmake --build build --target install
-          
+
       - name: Build binary
         run: |
           mkdir -p build/${{ matrix.arch }}
-          CC=${{ matrix.arch == 'arm-linux-gnueabihf' && 'arm-linux-gnueabihf-gcc' || 'aarch64-linux-gnu-gcc' }}
-          INSTALL_DIR=paho-install/${{ matrix.arch }}
-          BIN=ina_mqtt-${{ matrix.arch }}
-          
+          if [ "${{ matrix.arch }}" = "armhf" ]; then
+            export CC=arm-linux-gnueabihf-gcc
+            export INSTALL_DIR=$GITHUB_WORKSPACE/paho-install/armhf
+            export BIN=ina_mqtt-armhf
+          else
+            export CC=aarch64-linux-gnu-gcc
+            export INSTALL_DIR=$GITHUB_WORKSPACE/paho-install/arm64
+            export BIN=ina_mqtt-arm64
+          fi
+
           $CC -O2 -Wall -o build/${{ matrix.arch }}/$BIN ina219_mqtt.c \
             -I$INSTALL_DIR/include \
             -L$INSTALL_DIR/lib \
             -lpaho-mqtt3c
-      
-      - name: Upload binaries
+
+      - name: Upload binary
         uses: actions/upload-artifact@v4
         with:
           name: ina_mqtt-${{ matrix.arch }}
