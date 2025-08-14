@@ -78,18 +78,30 @@ jobs:
           name: ina_mqtt-${{ matrix.arch }}
           path: build/${{ matrix.arch }}
 
-      - name: Push to binary release repo
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
+      # - name: Push to binary release repo
+      #   run: |
+      #     git config --global user.name "GitHub Actions"
+      #     git config --global user.email "actions@github.com"
 
-          git clone https://github.com/AndreCouture/ina-mqtt-binaries.git
-          cd ina-mqtt-binaries
+      #     git clone https://github.com/AndreCouture/ina-mqtt-binaries.git
+      #     cd ina-mqtt-binaries
 
-          mkdir -p ${{ matrix.arch }}
-          cp ../build/${{ matrix.arch }}/ina_mqtt-${{ matrix.arch }} ${{ matrix.arch }}/ina_mqtt
+      #     mkdir -p ${{ matrix.arch }}
+      #     cp ../build/${{ matrix.arch }}/ina_mqtt-${{ matrix.arch }} ${{ matrix.arch }}/ina_mqtt
 
-          git add ${{ matrix.arch }}/ina_mqtt
-          git commit -m "Update binary for ${{ matrix.arch }} on $(date -u +'%Y-%m-%d %H:%M:%S')"
-          git push
+      #     git add ${{ matrix.arch }}/ina_mqtt
+      #     git commit -m "Update binary for ${{ matrix.arch }} on $(date -u +'%Y-%m-%d %H:%M:%S')"
+      #     git push
           
+      - name: Set tag name to short SHA
+        id: vars
+        run: echo "tag=commit-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.vars.outputs.tag }}
+          name: "ina_mqtt-${{ matrix.arch }}"
+          files: build/${{ matrix.arch }}/ina_mqtt-${{ matrix.arch }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
