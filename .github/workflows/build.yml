@@ -31,6 +31,17 @@ jobs:
             libi2c-dev \
             build-essential
 
+      - name: Build Paho MQTT C for ${{ matrix.arch }}
+        run: |
+          git clone https://github.com/eclipse/paho.mqtt.c.git
+          cd paho.mqtt.c
+          cmake -Bbuild -H. \
+            -DPAHO_WITH_SSL=OFF \
+            -DPAHO_BUILD_STATIC=TRUE \
+            -DCMAKE_C_COMPILER=${{ matrix.arch == 'armhf' && 'arm-linux-gnueabihf-gcc' || 'aarch64-linux-gnu-gcc' }} \
+            -DCMAKE_INSTALL_PREFIX=../paho-install/${{ matrix.arch }}
+          cmake --build build --target install
+          
       - name: Build binary
         run: |
           mkdir -p build/${{ matrix.arch }}
