@@ -188,4 +188,6 @@ You can extend this program to:
 
 ---
 
+![Build Status](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/build.yml/badge.svg)
+
 Made for Raspberry Pi, tested on Debian Bookworm.
